@@ -1,0 +1,83 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Term::ReadKey;
+print "Press q to quit\n";
+
+my @menu = (
+    [ "1", "Weight program",    \&weight ],
+    [ "2", "Pedometer program", \&pedometer ],
+    [ "s", "shutdown", \&shutdown ]
+);
+
+&display_menu(@menu);
+
+# http://search.cpan.org/dist/TermReadKey/ReadKey.pm [2010-01-03]
+# http://www.perlmonks.org/?node_id=798213 [2010-01-03]
+
+ReadMode 4;    # Turn off controls keys
+while (1) {
+    my $key = ReadKey(-1);
+    if ( defined($key) ) {
+        &process_key( $key, @menu );
+        &display_menu(@menu);
+    }
+}
+
+ReadMode 1;    # Change to cooked mode.
+
+sub process_key {
+    print "==> sub process_key\n";
+    my ( $char_received, @menu ) = @_;
+    print "[ $char_received ] ->  [", ord($char_received), "]\n";
+    if ( ( $char_received eq 'Q' ) || ( $char_received eq 'q' ) ) {
+        ReadMode 1;    # Change to cooked mode.
+        exit;
+    }
+    for my $aref (@menu) {
+        my $menu_key      = $$aref[0];
+        my $menu_text     = $$aref[1];
+        my $sub_reference = $$aref[2];
+
+# DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
+# DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
+        if ( $menu_key eq $char_received ) {
+            print
+              "\n\n\nYou pressed \'$char_received\', I will run $menu_text\n";
+            &$sub_reference;
+        }
+    }
+}
+
+sub display_menu {
+    print `clear`;
+    print "==> sub display_menu\n";
+    my @menu = @_;
+    for my $aref (@menu) {
+        my $menu_key  = $$aref[0];
+        my $menu_text = $$aref[1];
+
+        #        my $sub_reference = $$aref[2];
+
+# DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
+# DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
+        print "$menu_key\t$menu_text\n";
+    }
+}
+
+sub weight {
+    open( XINITRC, ">/home/troy/.xinitrc" );
+    print XINITRC<<END;
+/home/troy/devel/qt/green/byhand/byhand &
+sleep 60
+END
+    `startx`;
+}
+
+sub pedometer {
+    print "sub pedomter\n";
+}
+
+sub shutdown {
+    `sudo /sbin/shutdown -h now`;
+}

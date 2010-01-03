@@ -1,0 +1,27 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Term::ReadKey;
+print "Press q to quit\n";
+
+# http://search.cpan.org/dist/TermReadKey/ReadKey.pm [2010-01-03]
+# http://www.perlmonks.org/?node_id=798213 [2010-01-03]
+
+ReadMode 4; # Turn off controls keys
+my $key;
+while (1) {
+    $key = ReadKey(-1);
+    if ( defined ($key)) {
+	&process_key($key);
+    }
+}
+
+ReadMode 1; # Change to cooked mode.
+
+sub process_key {
+    print "[ $key ] ->  [", ord($key), "]\n";
+    if ( ($key eq 'Q') || ($key eq 'q')) {
+	ReadMode 1; # Change to cooked mode.
+	exit;
+    }
+}
