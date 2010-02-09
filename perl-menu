@@ -5,9 +5,14 @@ use Term::ReadKey;
 print "Press q to quit\n";
 
 my @menu = (
-    [ "1", "Weight program",    \&weight ],
-    [ "2", "Pedometer program", \&pedometer ],
-    [ "s", "shutdown", \&shutdown ]
+    [ "1", "Marv Weight Log", \&marv_weight_log ],
+    [ "2", "Troy 1000", \&troy_1000 ],
+    [ "3", "Troy new reading", \&troy_new_reading ],
+    [ "4", "Troy Filter", \&troy_will_filter ],
+    [ "9", "Weight program demo (will automatically quit after 10 seconds)", \&weight ],
+    [ "x", "Run X", \&run_x ],
+    [ "n", "Connect to wireless network", \&wireless_network ],
+    [ "s", "shutdown (Turn off computer)", \&shutdown ]
 );
 
 &display_menu(@menu);
@@ -22,9 +27,49 @@ while (1) {
         &process_key( $key, @menu );
         &display_menu(@menu);
     }
+    select(undef,undef,undef,0.25);
 }
 
 ReadMode 1;    # Change to cooked mode.
+
+sub display_menu {
+    print `clear`;
+    print "\n\n\n\n";
+    print "===================================================\n";
+    my @menu = @_;
+    for my $aref (@menu) {
+        my $menu_key  = $$aref[0];
+        my $menu_text = $$aref[1];
+
+        #        my $sub_reference = $$aref[2];
+
+# DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
+# DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
+        print "\t\t($menu_key) $menu_text\n";
+    }
+    print "===================================================\n";
+}
+
+sub weight {
+    unless ( -e "/tmp/.X0-lock" ) {
+	open( XINITRC, ">/home/troy/.xinitrc" );
+	print XINITRC<<END;
+/home/troy/devel/qt/green/byhand/byhand &
+sleep 10
+END
+    `startx`;
+    } else {
+	system("/home/troy/devel/qt/green/byhand/byhand");
+    }
+}
+
+sub pedometer {
+    print "sub pedomter\n";
+}
+
+sub shutdown {
+    `sudo /sbin/shutdown -h now`;
+}
 
 sub process_key {
     print "==> sub process_key\n";
@@ -42,42 +87,49 @@ sub process_key {
 # DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
 # DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
         if ( $menu_key eq $char_received ) {
-            print
-              "\n\n\nYou pressed \'$char_received\', I will run $menu_text\n";
             &$sub_reference;
         }
     }
 }
 
-sub display_menu {
-    print `clear`;
-    print "==> sub display_menu\n";
-    my @menu = @_;
-    for my $aref (@menu) {
-        my $menu_key  = $$aref[0];
-        my $menu_text = $$aref[1];
+sub marv_weight_log {
+    system("/home/troy/rcs/getfit/bin/get-fit-marv.pl");
+}
 
-        #        my $sub_reference = $$aref[2];
-
-# DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
-# DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
-        print "$menu_key\t$menu_text\n";
+sub run_x {
+    unless ( -e "/tmp/.X0-lock" ) {
+	open( XINITRC, ">/home/troy/.xinitrc" );
+	print XINITRC<<END;
+twm
+sleep 10
+END
+`startx`;
     }
 }
 
-sub weight {
-    open( XINITRC, ">/home/troy/.xinitrc" );
-    print XINITRC<<END;
-/home/troy/devel/qt/green/byhand/byhand &
-sleep 60
-END
-    `startx`;
+sub troy_1000 {
+    system("/home/troy/rcs/getfit/bin/troy-1000");
+    &prompt_continue();
 }
 
-sub pedometer {
-    print "sub pedomter\n";
+sub troy_new_reading {
+    system("/home/troy/rcs/getfit/bin/troy-new-reading");
+    &prompt_continue();
 }
 
-sub shutdown {
-    `sudo /sbin/shutdown -h now`;
+sub troy_will_filter {
+    system("/home/troy/rcs/getfit/bin/troy-will-filter");
+    &prompt_continue();
+}
+
+sub wireless_network {
+    system("sudo tdw-wireless-daemon &");
+    sleep 1;
+    system("sudo dhcpcd");
+}
+
+sub prompt_continue {
+    $| = 1;
+    print "\nPress Enter to continue ";
+    <STDIN>;
 }
