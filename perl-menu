@@ -29,7 +29,6 @@ while (1) {
     }
     select(undef,undef,undef,0.25);
 }
-
 ReadMode 1;    # Change to cooked mode.
 
 sub display_menu {
@@ -86,9 +85,11 @@ sub process_key {
 
 # DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
 # DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
+	ReadMode 1;    # Change to cooked mode.
         if ( $menu_key eq $char_received ) {
             &$sub_reference;
         }
+	ReadMode 4;    # Turn off controls keys
     }
 }
 
@@ -130,6 +131,14 @@ sub wireless_network {
 
 sub prompt_continue {
     $| = 1;
-    print "\nPress Enter to continue ";
-    <STDIN>;
+    print "\nPress any key to continue ";
+    ReadMode 4;    # Turn off controls keys
+    while (1) {
+	select(undef,undef,undef,0.25);
+	my $key = ReadKey(-1);
+	if ( defined($key) ) {
+	    ReadMode 1;    # Turn off controls keys
+	    return;
+	}
+    }
 }
