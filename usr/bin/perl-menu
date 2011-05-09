@@ -5,7 +5,7 @@ use Term::ReadKey;
 print "Press q to quit\n";
 
 my @menu = (
-    [ "1", "Marv Weight Log", \&marv_weight_log ],
+    [ "1", "KMess", \&kmess ],
     [ "2", "Troy 1000", \&troy_1000 ],
     [ "3", "Troy new reading", \&troy_new_reading ],
     [ "4", "Troy Filter", \&troy_will_filter ],
@@ -93,8 +93,8 @@ sub process_key {
     }
 }
 
-sub marv_weight_log {
-    system("/home/troy/rcs/getfit/bin/get-fit-marv.pl");
+sub kmess {
+    system("kmess &");
 }
 
 sub run_x {
