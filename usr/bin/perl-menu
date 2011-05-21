@@ -10,7 +10,7 @@ my @menu = (
     [ "3", "Troy new reading", \&troy_new_reading ],
     [ "4", "Troy Filter", \&troy_will_filter ],
     [ "9", "Weight program demo (will automatically quit after 10 seconds)", \&weight ],
-    [ "x", "Run X", \&run_x ],
+    [ "x", "Run Fluxbox", \&run_fluxbox ],
     [ "n", "Connect to wireless network", \&wireless_network ],
     [ "s", "shutdown (Turn off computer)", \&shutdown ]
 );
@@ -97,12 +97,11 @@ sub kmess {
     system("kmess &");
 }
 
-sub run_x {
+sub run_fluxbox {
     unless ( -e "/tmp/.X0-lock" ) {
 	open( XINITRC, ">/home/troy/.xinitrc" );
 	print XINITRC<<END;
-twm
-sleep 10
+exec startfluxbox
 END
 `startx`;
     }
