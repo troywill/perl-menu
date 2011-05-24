@@ -2,10 +2,12 @@
 use strict;
 use warnings;
 use Term::ReadKey;
+
+my ($wchar, $hchar, $wpixels, $hpixels) = GetTerminalSize();
 print "Press q to quit\n";
 
 my @menu = (
-    [ "1", "KMess", \&kmess ],
+    [ "1", "Start Chromium in a lightweight environment", \&start_chromium ],
     [ "2", "Troy 1000", \&troy_1000 ],
     [ "3", "Troy new reading", \&troy_new_reading ],
     [ "4", "Troy Filter", \&troy_will_filter ],
@@ -15,12 +17,16 @@ my @menu = (
     [ "s", "shutdown (Turn off computer)", \&shutdown ]
 );
 
-&display_menu(@menu);
-
 # http://search.cpan.org/dist/TermReadKey/ReadKey.pm [2010-01-03]
 # http://www.perlmonks.org/?node_id=798213 [2010-01-03]
 
 ReadMode 4;    # Turn off controls keys
+# my $header = "\n" . '+' . '-' x ($wchar-2) . '+' . "\n";
+my $header = '+' . '-'x($wchar-2) . '+' . "\n\n";
+my $left_margin = "\t";
+my $footer = '';
+my $clear = `clear`;
+&display_menu(@menu);
 while (1) {
     my $key = ReadKey(-1);
     if ( defined($key) ) {
@@ -31,10 +37,24 @@ while (1) {
 }
 ReadMode 1;    # Change to cooked mode.
 
+sub start_chromium {
+    &write_xinitrc;
+    system("startx");
+
+# Write lightweight manager configuration
+    sub write_xinitrc {
+	my $HOME = $ENV{'HOME'};
+	open my $xinitrc, '>', "$HOME/.xinitrc" || die "Unable to open $HOME/.xinitrc for output";
+	print $xinitrc <<HERE;
+	exec startfluxbox
+HERE
+    }
+
+}
+
 sub display_menu {
-    print `clear`;
-    print "\n\n\n\n";
-    print "===================================================\n";
+    print $clear;
+    print $header;
     my @menu = @_;
     for my $aref (@menu) {
         my $menu_key  = $$aref[0];
@@ -44,9 +64,9 @@ sub display_menu {
 
 # DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
 # DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
-        print "\t\t($menu_key) $menu_text\n";
+        print "${left_margin}[$menu_key] $menu_text\n";
     }
-    print "===================================================\n";
+    print $footer;
 }
 
 sub weight {
@@ -71,9 +91,7 @@ sub shutdown {
 }
 
 sub process_key {
-    print "==> sub process_key\n";
     my ( $char_received, @menu ) = @_;
-    print "[ $char_received ] ->  [", ord($char_received), "]\n";
     if ( ( $char_received eq 'Q' ) || ( $char_received eq 'q' ) ) {
         ReadMode 1;    # Change to cooked mode.
         exit;
@@ -83,8 +101,6 @@ sub process_key {
         my $menu_text     = $$aref[1];
         my $sub_reference = $$aref[2];
 
-# DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
-# DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
 	ReadMode 1;    # Change to cooked mode.
         if ( $menu_key eq $char_received ) {
             &$sub_reference;
