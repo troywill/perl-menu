@@ -3,34 +3,36 @@ use strict;
 use warnings;
 use Term::ANSIColor;
 use Term::ReadKey;
+
 # ReadMode 1;    # Change to cooked mode.
-my ($wchar, $hchar, $wpixels, $hpixels) = GetTerminalSize();
+my ( $wchar, $hchar, $wpixels, $hpixels ) = GetTerminalSize();
 
 my @menu = (
     [ "1", "Start Chromium in a lightweight environment", \&start_chromium ],
     [ "2", "Display all wireless networks", \&display_wireless_networks ],
-    [ "3", "Connect to open network", \&connect_to_open_network ],
-    [ "t", "urn off computer", \&troy_new_reading ],
-    [ "r", "reboot computer", \&shutdown ]
+    [ "3", "Connect to open network",       \&connect_to_open_network ],
+    [ "t", "urn off computer",              \&troy_new_reading ],
+    [ "r", "reboot computer",               \&shutdown ]
 );
 
 # http://search.cpan.org/dist/TermReadKey/ReadKey.pm [2010-01-03]
 # http://www.perlmonks.org/?node_id=798213 [2010-01-03]
 
 ReadMode 4;    # Turn off controls keys
-my $header = '+' . '-'x($wchar-2) . '+' . "\n\n";
+my $header      = '+' . '-' x ( $wchar - 2 ) . '+' . "\n\n";
 my $left_margin = "\t";
-my $footer = '';
-my $clear = `clear`;
+my $footer      = '';
+my $clear       = `clear`;
 &display_menu(@menu);
 while (1) {
     my $key = ReadKey(-1);
     if ( defined($key) ) {
-	# display menu if m is pressed
-	&display_menu(@menu) if ( $key eq 'm' );
+
+        # display menu if m is pressed
+        &display_menu(@menu) if ( $key eq 'm' );
         &process_key( $key, @menu );
     }
-    select(undef,undef,undef,0.50);
+    select( undef, undef, undef, 0.50 );
 }
 
 sub process_key {
@@ -62,15 +64,15 @@ sub start_chromium {
     &write_xinitrc;
     system("startx");
 
-# Write lightweight manager configuration
+    # Write lightweight manager configuration
     sub write_xinitrc {
-	my $HOME = $ENV{'HOME'};
-	open my $xinitrc, '>', "$HOME/.xinitrc" || die "Unable to open $HOME/.xinitrc for output";
-	print $xinitrc <<HERE;
+        my $HOME = $ENV{'HOME'};
+        open my $xinitrc, '>',
+          "$HOME/.xinitrc" || die "Unable to open $HOME/.xinitrc for output";
+        print $xinitrc <<HERE;
 	exec startfluxbox
 HERE
     }
-
 }
 
 sub display_menu {
@@ -80,37 +82,35 @@ sub display_menu {
         my $menu_key  = $$aref[0];
         my $menu_text = $$aref[1];
         print "${left_margin}[";
-	print color 'bold blue';
-	print $menu_key;
-	print color 'reset';
-	print "] $menu_text\n";
+        print color 'bold blue';
+        print $menu_key;
+        print color 'reset';
+        print "] $menu_text\n";
     }
     print $footer;
-
 }
 
 sub shutdown {
     `sudo /sbin/shutdown -h now`;
 }
 
-
 sub run_fluxbox {
     unless ( -e "/tmp/.X0-lock" ) {
-	open( XINITRC, ">/home/troy/.xinitrc" );
-	print XINITRC<<END;
+        open( XINITRC, ">/home/troy/.xinitrc" );
+        print XINITRC<<END;
 exec startfluxbox
 END
-`startx`;
+        `startx`;
     }
 }
 
 sub prompt_continue {
     $| = 1;
     while (1) {
-	select(undef,undef,undef,0.25);
-	my $key = ReadKey(-1);
-	if ( defined($key) ) {
-	    return;
-	}
+        select( undef, undef, undef, 0.25 );
+        my $key = ReadKey(-1);
+        if ( defined($key) ) {
+            return;
+        }
     }
 }
