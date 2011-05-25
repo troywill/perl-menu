@@ -1,20 +1,17 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use Term::ANSIColor;
 use Term::ReadKey;
-
+# ReadMode 1;    # Change to cooked mode.
 my ($wchar, $hchar, $wpixels, $hpixels) = GetTerminalSize();
-print "Press q to quit\n";
 
 my @menu = (
     [ "1", "Start Chromium in a lightweight environment", \&start_chromium ],
-    [ "2", "Troy 1000", \&troy_1000 ],
-    [ "3", "Troy new reading", \&troy_new_reading ],
-    [ "4", "Troy Filter", \&troy_will_filter ],
-    [ "9", "Weight program demo (will automatically quit after 10 seconds)", \&weight ],
-    [ "x", "Run Fluxbox", \&run_fluxbox ],
-    [ "n", "Connect to wireless network", \&wireless_network ],
-    [ "s", "shutdown (Turn off computer)", \&shutdown ]
+    [ "2", "Display all wireless networks", \&display_wireless_networks ],
+    [ "3", "Connect to open network", \&troy_1000 ],
+    [ "t", "urn off computer", \&troy_new_reading ],
+    [ "r", "reboot computer", \&shutdown ]
 );
 
 # http://search.cpan.org/dist/TermReadKey/ReadKey.pm [2010-01-03]
@@ -31,11 +28,30 @@ while (1) {
     my $key = ReadKey(-1);
     if ( defined($key) ) {
         &process_key( $key, @menu );
-        &display_menu(@menu);
     }
-    select(undef,undef,undef,0.25);
+    select(undef,undef,undef,0.50);
 }
-ReadMode 1;    # Change to cooked mode.
+
+sub process_key {
+    my ( $char_received, @menu ) = @_;
+    if ( ( $char_received eq 'Q' ) || ( $char_received eq 'q' ) ) {
+        ReadMode 1;    # Change to cooked mode.
+        exit;
+    }
+    for my $aref (@menu) {
+        my $menu_key      = $$aref[0];
+        my $menu_text     = $$aref[1];
+        my $sub_reference = $$aref[2];
+
+        if ( $menu_key eq $char_received ) {
+            &$sub_reference;
+        }
+    }
+}
+
+sub display_wireless_networks {
+    system("perl-net-scan-wireless");
+}
 
 sub start_chromium {
     &write_xinitrc;
@@ -53,65 +69,26 @@ HERE
 }
 
 sub display_menu {
-    print $clear;
+#    print $clear;
     print $header;
     my @menu = @_;
     for my $aref (@menu) {
         my $menu_key  = $$aref[0];
         my $menu_text = $$aref[1];
-
-        #        my $sub_reference = $$aref[2];
-
-# DEBUG       print "\t [ @$aref ],\n"; Will print out array line; remove me for production
-# DEBUG	print "$$aref[0]\t$$aref[1]\t$$aref[2]\n"; remove for production
-        print "${left_margin}[$menu_key] $menu_text\n";
+        print "${left_margin}[";
+	print color 'bold blue';
+	print $menu_key;
+	print color 'reset';
+	print "] $menu_text\n";
     }
     print $footer;
-}
 
-sub weight {
-    unless ( -e "/tmp/.X0-lock" ) {
-	open( XINITRC, ">/home/troy/.xinitrc" );
-	print XINITRC<<END;
-/home/troy/devel/qt/green/byhand/byhand &
-sleep 10
-END
-    `startx`;
-    } else {
-	system("/home/troy/devel/qt/green/byhand/byhand");
-    }
-}
-
-sub pedometer {
-    print "sub pedomter\n";
 }
 
 sub shutdown {
     `sudo /sbin/shutdown -h now`;
 }
 
-sub process_key {
-    my ( $char_received, @menu ) = @_;
-    if ( ( $char_received eq 'Q' ) || ( $char_received eq 'q' ) ) {
-        ReadMode 1;    # Change to cooked mode.
-        exit;
-    }
-    for my $aref (@menu) {
-        my $menu_key      = $$aref[0];
-        my $menu_text     = $$aref[1];
-        my $sub_reference = $$aref[2];
-
-	ReadMode 1;    # Change to cooked mode.
-        if ( $menu_key eq $char_received ) {
-            &$sub_reference;
-        }
-	ReadMode 4;    # Turn off controls keys
-    }
-}
-
-sub kmess {
-    system("kmess &");
-}
 
 sub run_fluxbox {
     unless ( -e "/tmp/.X0-lock" ) {
@@ -123,37 +100,15 @@ END
     }
 }
 
-sub troy_1000 {
-    system("/home/troy/rcs/getfit/bin/troy-1000");
-    &prompt_continue();
-}
-
-sub troy_new_reading {
-    system("/home/troy/rcs/getfit/bin/troy-new-reading");
-    &prompt_continue();
-}
-
-sub troy_will_filter {
-    system("/home/troy/rcs/getfit/bin/troy-will-filter");
-    &prompt_continue();
-}
-
-sub wireless_network {
-    system("sudo tdw-wireless-daemon &");
-    sleep 1;
-    system("sudo dhcpcd");
-}
-
 sub prompt_continue {
     $| = 1;
-    print "\nPress any key to continue ";
-    ReadMode 4;    # Turn off controls keys
     while (1) {
 	select(undef,undef,undef,0.25);
 	my $key = ReadKey(-1);
 	if ( defined($key) ) {
-	    ReadMode 1;    # Turn off controls keys
 	    return;
 	}
     }
 }
+
+#     print '['; print color 'bold blue'; print $key; print color 'reset'; print "]$text\n";
