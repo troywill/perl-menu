@@ -9,7 +9,7 @@ my ($wchar, $hchar, $wpixels, $hpixels) = GetTerminalSize();
 my @menu = (
     [ "1", "Start Chromium in a lightweight environment", \&start_chromium ],
     [ "2", "Display all wireless networks", \&display_wireless_networks ],
-    [ "3", "Connect to open network", \&troy_1000 ],
+    [ "3", "Connect to open network", \&connect_to_open_network ],
     [ "t", "urn off computer", \&troy_new_reading ],
     [ "r", "reboot computer", \&shutdown ]
 );
@@ -48,6 +48,10 @@ sub process_key {
             &$sub_reference;
         }
     }
+}
+
+sub connect_to_open_network {
+    system("perl-net-connect-open");
 }
 
 sub display_wireless_networks {
