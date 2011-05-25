@@ -27,7 +27,6 @@ my $clear       = `clear`;
 while (1) {
     my $key = ReadKey(-1);
     if ( defined($key) ) {
-
         # display menu if m is pressed
         &display_menu(@menu) if ( $key eq 'm' );
         &process_key( $key, @menu );
@@ -36,6 +35,7 @@ while (1) {
 }
 
 sub process_key {
+    ReadMode 1;    # Change to cooked mode.
     my ( $char_received, @menu ) = @_;
     if ( ( $char_received eq 'Q' ) || ( $char_received eq 'q' ) ) {
         ReadMode 1;    # Change to cooked mode.
@@ -50,6 +50,7 @@ sub process_key {
             &$sub_reference;
         }
     }
+    ReadMode 4;    # Turn off control keys
 }
 
 sub connect_to_open_network {
