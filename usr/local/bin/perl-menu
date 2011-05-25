@@ -18,7 +18,6 @@ my @menu = (
 # http://www.perlmonks.org/?node_id=798213 [2010-01-03]
 
 ReadMode 4;    # Turn off controls keys
-# my $header = "\n" . '+' . '-' x ($wchar-2) . '+' . "\n";
 my $header = '+' . '-'x($wchar-2) . '+' . "\n\n";
 my $left_margin = "\t";
 my $footer = '';
@@ -27,6 +26,8 @@ my $clear = `clear`;
 while (1) {
     my $key = ReadKey(-1);
     if ( defined($key) ) {
+	# display menu if m is pressed
+	&display_menu(@menu) if ( $key eq 'm' );
         &process_key( $key, @menu );
     }
     select(undef,undef,undef,0.50);
@@ -69,7 +70,6 @@ HERE
 }
 
 sub display_menu {
-#    print $clear;
     print $header;
     my @menu = @_;
     for my $aref (@menu) {
@@ -110,5 +110,3 @@ sub prompt_continue {
 	}
     }
 }
-
-#     print '['; print color 'bold blue'; print $key; print color 'reset'; print "]$text\n";
