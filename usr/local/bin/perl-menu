@@ -11,6 +11,8 @@ my @menu = (
     [ "1", "Start Chromium in a lightweight environment", \&start_chromium ],
     [ "2", "Display all wireless networks", \&display_wireless_networks ],
     [ "3", "Connect to open network",       \&connect_to_open_network ],
+    [ "4", "Weight",                        \&connect_to_open_network ],
+    [ "5", "Chinese",                       \&connect_to_open_network ],
     [ "t", "urn off computer",              \&troy_new_reading ],
     [ "r", "reboot computer",               \&shutdown ]
 );
@@ -21,18 +23,19 @@ my @menu = (
 ReadMode 4;    # Turn off controls keys
 my $header      = '+' . '-' x ( $wchar - 2 ) . '+' . "\n\n";
 my $left_margin = "\t";
-my $footer      = '';
+my $footer      = "\n" . '+' . '-' x ( $wchar - 2 ) . '+' . "\n";
 my $clear       = `clear`;
 &display_menu(@menu);
-while (1) {
-    my $key = ReadKey(-1);
-    if ( defined($key) ) {
-        # display menu if m is pressed
-        &display_menu(@menu) if ( $key eq 'm' );
-        &process_key( $key, @menu );
-    }
-    select( undef, undef, undef, 0.50 );
-}
+ReadMode 1;    # Change to cooked mode.
+# while (1) {
+#     my $key = ReadKey(-1);
+#     if ( defined($key) ) {
+#         # display menu if m is pressed
+#         &display_menu(@menu) if ( $key eq 'm' );
+#         &process_key( $key, @menu );
+#     }
+#     select( undef, undef, undef, 0.50 );
+# }
 
 sub process_key {
     ReadMode 1;    # Change to cooked mode.
@@ -77,6 +80,7 @@ HERE
 }
 
 sub display_menu {
+    print $clear;
     print $header;
     my @menu = @_;
     for my $aref (@menu) {
