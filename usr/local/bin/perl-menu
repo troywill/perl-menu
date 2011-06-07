@@ -8,8 +8,8 @@ use Term::ReadKey;
 my ( $wchar, $hchar, $wpixels, $hpixels ) = GetTerminalSize();
 
 my @menu = (
-    [ "1", "Start Chromium in a lightweight environment", \&start_chromium ],
-    [ "2", "Display all wireless networks", \&display_wireless_networks ],
+    [ "1", "Google Chromium", \&start_chromium ],
+    [ "2", "Show wireless networks", \&display_wireless_networks ],
     [ "3", "Connect to open network",       \&connect_to_open_network ],
     [ "4", "Weight",                        \&connect_to_open_network ],
     [ "5", "Chinese",                       \&connect_to_open_network ],
@@ -21,9 +21,9 @@ my @menu = (
 # http://www.perlmonks.org/?node_id=798213 [2010-01-03]
 
 ReadMode 4;    # Turn off controls keys
-my $header      = '+' . '-' x ( $wchar - 2 ) . '+' . "\n\n";
-my $left_margin = "\t";
-my $footer      = "\n" . '+' . '-' x ( $wchar - 2 ) . '+' . "\n";
+my $header      = '+' . '-' x ( $wchar - 2 ) . '+' . "\n|\n";
+my $left_margin = "|\t";
+my $footer      = "|\n" . '+' . '-' x ( $wchar - 2 ) . '+' . "\n";
 my $clear       = `clear`;
 &display_menu(@menu);
 ReadMode 1;    # Change to cooked mode.
@@ -81,6 +81,7 @@ HERE
 
 sub display_menu {
     print $clear;
+    print color 'bold white';
     print $header;
     my @menu = @_;
     for my $aref (@menu) {
@@ -90,7 +91,11 @@ sub display_menu {
         print color 'bold blue';
         print $menu_key;
         print color 'reset';
-        print "] $menu_text\n";
+        print "] ";
+	print color 'bold white';
+	print $menu_text;
+	print color 'reset';
+	print "\n";
     }
     print $footer;
 }
