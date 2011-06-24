@@ -90,15 +90,13 @@ sub display_menu {
         print "${left_margin}[";
         print color 'bold blue';
         print $menu_key;
-        print color 'reset';
-        print "] ";
 	print color 'bold white';
+        print "] ";
 	print $menu_text;
-	print color 'reset';
+#	print color 'reset';
 	print "\n";
     }
     print $footer;
-    system("perl-computer-battery");
 }
 
 sub shutdown {
