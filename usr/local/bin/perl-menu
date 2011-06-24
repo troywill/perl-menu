@@ -98,6 +98,7 @@ sub display_menu {
 	print "\n";
     }
     print $footer;
+    system("perl-computer-battery");
 }
 
 sub shutdown {
