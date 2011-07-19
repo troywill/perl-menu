@@ -57,11 +57,11 @@ sub process_key {
 }
 
 sub connect_to_open_network {
-    system("perl-net-connect-open");
+    system("sudo perl-net-connect-open");
 }
 
 sub display_wireless_networks {
-    system("perl-net-scan-wireless");
+    system("sudo perl-net-scan-wireless");
 }
 
 sub start_chromium {
