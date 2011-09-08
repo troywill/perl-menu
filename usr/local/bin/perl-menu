@@ -12,7 +12,7 @@ my @menu = (
     [ "2", "Show wireless networks", \&display_wireless_networks ],
     [ "3", "Connect to open network",       \&connect_to_open_network ],
     [ "4", "Weight",                        \&connect_to_open_network ],
-    [ "5", "Chinese",                       \&connect_to_open_network ],
+    [ "5", "Chinese [pause with space bar, quit with \"q\"]",                       \&connect_to_open_network ],
     [ "t", "urn off computer",              \&troy_new_reading ],
     [ "r", "reboot computer",               \&shutdown ]
 );
